@@ -14,12 +14,26 @@ const idToTemplate = cached(id => {
   return el && el.innerHTML
 })
 
-const mount = Vue.prototype.$mount
+// 在之前，Vue.prototype.$mount 已经被定义过了， platforms/runtime/index.js
+// // public mount method
+// Vue.prototype.$mount = function (
+//   el?: string | Element,
+//   hydrating?: boolean
+// ): Component {
+//   el = el && inBrowser ? query(el) : undefined
+//   return mountComponent(this, el, hydrating)
+// }
+const mount = Vue.prototype.$mount // 最后render用
+//
+// todo 在这里又 重新定义了一遍 why？
+//  platforms/runtime/index.js 中定义的mount是给 runtime only版本的代码使用的，只是在runtime with compiler版本简单的复用
+
+// init中调用： vm.$mount(vm.$options.el)
 Vue.prototype.$mount = function (
   el?: string | Element,
   hydrating?: boolean
 ): Component {
-  el = el && query(el)
+  el = el && query(el) // 已经转换为一个 dom对象
 
   /* istanbul ignore if */
   if (el === document.body || el === document.documentElement) {
@@ -31,6 +45,9 @@ Vue.prototype.$mount = function (
 
   const options = this.$options
   // resolve template/el and convert to render function
+  /**
+   * Vue 最终都是通过render函数去编译渲染，没有传入render对象，那么就会将template转换为 render
+   */
   if (!options.render) {
     let template = options.template
     if (template) {
@@ -56,6 +73,11 @@ Vue.prototype.$mount = function (
     } else if (el) {
       template = getOuterHTML(el)
     }
+
+    /**
+     * 将template 转换为 render
+     * 通过compileToFunctions， 拿到 render， staticRenderFns
+     */
     if (template) {
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -69,7 +91,7 @@ Vue.prototype.$mount = function (
         delimiters: options.delimiters,
         comments: options.comments
       }, this)
-      options.render = render
+      options.render = render // 没有render，也要创造render ！
       options.staticRenderFns = staticRenderFns
 
       /* istanbul ignore if */
@@ -79,6 +101,15 @@ Vue.prototype.$mount = function (
       }
     }
   }
+  // 在之前，Vue.prototype.$mount 已经被定义过了， platforms/runtime/index.js
+// // public mount method
+// Vue.prototype.$mount = function (
+//   el?: string | Element,
+//   hydrating?: boolean
+// ): Component {
+//   el = el && inBrowser ? query(el) : undefined
+//   return mountComponent(this, el, hydrating)
+// }
   return mount.call(this, el, hydrating)
 }
 

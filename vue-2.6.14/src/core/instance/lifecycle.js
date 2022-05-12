@@ -138,6 +138,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
   }
 }
 
+// $mount 中调用！！
 export function mountComponent (
   vm: Component,
   el: ?Element,
@@ -166,6 +167,9 @@ export function mountComponent (
   }
   callHook(vm, 'beforeMount')
 
+  /**
+   * performance 浏览器性能埋点
+   */
   let updateComponent
   /* istanbul ignore if */
   if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -187,10 +191,16 @@ export function mountComponent (
     }
   } else {
     updateComponent = () => {
-      vm._update(vm._render(), hydrating)
+      vm._update(vm._render(), hydrating)  // 更新触发 真实的渲染
     }
   }
 
+  /**
+   * Watcher 是一个监听类，核心
+   *
+   * Watcher 在这里起到两个作用，一个是初始化的时候会执行回调函数，
+   * 另一个是当 vm 实例中的监测的数据发生变化的时候执行回调函数，这块儿我们会在之后的章节中介绍。
+   */
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined

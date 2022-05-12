@@ -66,6 +66,7 @@ export function initMixin (Vue: Class<Component>) {
     }
 
     if (vm.$options.el) {
+      // 实际调用的是 runtime-with-compiler.js中 定义的 $mount
       vm.$mount(vm.$options.el)
     }
   }

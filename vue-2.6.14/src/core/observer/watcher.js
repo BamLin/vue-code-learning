@@ -43,16 +43,26 @@ export default class Watcher {
   getter: Function;
   value: any;
 
+
+  //   new Watcher(vm, updateComponent, noop, {
+  //     before () {
+  //       if (vm._isMounted && !vm._isDestroyed) {
+  //         callHook(vm, 'beforeUpdate')
+  //       }
+  //     }
+  //   }, true /* isRenderWatcher */)
+
+  // ！！！！！！
   constructor (
     vm: Component,
     expOrFn: string | Function,
     cb: Function,
     options?: ?Object,
-    isRenderWatcher?: boolean
+    isRenderWatcher?: boolean // 是否是渲染相关的监听
   ) {
     this.vm = vm
     if (isRenderWatcher) {
-      vm._watcher = this
+      vm._watcher = this // 是否是渲染相关的监听
     }
     vm._watchers.push(this)
     // options
@@ -76,9 +86,10 @@ export default class Watcher {
     this.expression = process.env.NODE_ENV !== 'production'
       ? expOrFn.toString()
       : ''
+
     // parse expression for getter
     if (typeof expOrFn === 'function') {
-      this.getter = expOrFn
+      this.getter = expOrFn // expOrFn 传入的expOrFn如果是个函数，。。
     } else {
       this.getter = parsePath(expOrFn)
       if (!this.getter) {
@@ -98,6 +109,7 @@ export default class Watcher {
 
   /**
    * Evaluate the getter, and re-collect dependencies.
+   * 评估 getter，并重新收集依赖项。
    */
   get () {
     pushTarget(this)
@@ -105,6 +117,10 @@ export default class Watcher {
     const vm = this.vm
     try {
       value = this.getter.call(vm, vm)
+      // this.getter 会执行传入Watcher的 function，eg. lifecycle.js中的 updateComponent方法，从而更新
+      // updateComponent = () => {
+      //       vm._update(vm._render(), hydrating) // 更新触发 真实的渲染
+      //     }
     } catch (e) {
       if (this.user) {
         handleError(e, vm, `getter for watcher "${this.expression}"`)
