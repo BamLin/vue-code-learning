@@ -45,7 +45,7 @@ Vue.prototype.$mount = function (
   hydrating?: boolean
 ): Component {
   el = el && inBrowser ? query(el) : undefined
-  return mountComponent(this, el, hydrating)
+  return mountComponent(this, el, hydrating) // todo mountComponent 重要；；import { mountComponent } from 'core/instance/lifecycle'
 }
 
 // devtools global hook

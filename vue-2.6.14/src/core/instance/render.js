@@ -4,7 +4,7 @@
  *
  * 调用逻辑顺序： $mount -> mountComponent(lifecycle.js) -> updateComponent -> vm._render()
  * render方法
- * 
+ *
  */
 import {
   warn,
