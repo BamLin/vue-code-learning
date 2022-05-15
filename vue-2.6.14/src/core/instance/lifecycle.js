@@ -138,7 +138,25 @@ export function lifecycleMixin (Vue: Class<Component>) {
   }
 }
 
-// $mount 中调用！！
+/**
+ *
+ * mountComponent 核心就是先实例化一个渲染Watcher，
+ * 在它的回调函数中会调用 updateComponent 方法，
+ * 在此方法中调用 vm._render 方法先生成虚拟 Node，
+ * 最终调用 vm._update 更新 DOM。
+ *
+ * Watcher 在这里起到两个作用，一个是初始化的时候会执行回调函数，另一个是当 vm 实例中的监测的数据发生变化的时候执行回调函数
+ *
+ * 函数最后判断为根节点的时候设置 vm._isMounted 为 true， 表示这个实例已经挂载了，同时执行 mounted 钩子函数。
+ * 这里注意 vm.$vnode 表示 Vue 实例的父虚拟 Node，所以它为 Null 则表示当前是根 Vue 的实例。
+ *
+ * @param vm
+ * @param el
+ * @param hydrating
+ * @returns {Component}
+ */
+// $mount 中调用！！，重要！！！！
+// 在 runtime/index.js中调用  return mountComponent(this, el, hydrating)
 export function mountComponent (
   vm: Component,
   el: ?Element,
@@ -147,6 +165,7 @@ export function mountComponent (
   vm.$el = el
   if (!vm.$options.render) {
     vm.$options.render = createEmptyVNode
+
     if (process.env.NODE_ENV !== 'production') {
       /* istanbul ignore if */
       if ((vm.$options.template && vm.$options.template.charAt(0) !== '#') ||
@@ -190,37 +209,47 @@ export function mountComponent (
       measure(`vue ${name} patch`, startTag, endTag)
     }
   } else {
+    // todo 在 Watcher中的回调函数中 会执行
     updateComponent = () => {
-      vm._update(vm._render(), hydrating)  // 更新触发 真实的渲染
+      /**
+       * 核心， vm._update， vm._render()
+       * todo vm._render() 在 render.js 中
+       * todo vm._render() 在 render.js 中
+       */
+      vm._update(vm._render(), hydrating)  // todo 更新触发 真实的渲染
     }
   }
 
   /**
    * Watcher 是一个监听类，核心
    *
-   * Watcher 在这里起到两个作用，一个是初始化的时候会执行回调函数，
+   * Watcher 在这里起到两个作用，一个是初始化的时候会执行回调函数updateComponent，
    * 另一个是当 vm 实例中的监测的数据发生变化的时候执行回调函数，这块儿我们会在之后的章节中介绍。
    */
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child
   // component's mounted hook), which relies on vm._watcher being already defined
+  // todo 去看 Watcher的代码，传入updateComponent，在实例化过程中是要执行一遍updateComponent的
   new Watcher(vm, updateComponent, noop, {
     before () {
+      // 函数最后判断为根节点的时候设置 vm._isMounted 为 true， 表示这个实例已经挂载了，同时执行 mounted 钩子函数
       if (vm._isMounted && !vm._isDestroyed) {
         callHook(vm, 'beforeUpdate')
       }
     }
   }, true /* isRenderWatcher */)
+
   hydrating = false
 
   // manually mounted instance, call mounted on self
   // mounted is called for render-created child components in its inserted hook
   if (vm.$vnode == null) {
-    vm._isMounted = true
+    vm._isMounted = true // 函数最后判断为根节点的时候设置 vm._isMounted 为 true， 表示这个实例已经挂载了，同时执行 mounted 钩子函数
     callHook(vm, 'mounted')
   }
   return vm
 }
+
 
 export function updateChildComponent (
   vm: Component,

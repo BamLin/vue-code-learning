@@ -75,14 +75,17 @@ if (process.env.NODE_ENV !== 'production') {
     }
   }
 
+
+  // 开发阶段，initProxy
   initProxy = function initProxy (vm) {
+    //     typeof Proxy !== 'undefined' && isNative(Proxy) 判断是否有 proxy，es6
     if (hasProxy) {
       // determine which proxy handler to use
       const options = vm.$options
       const handlers = options.render && options.render._withStripped
         ? getHandler
         : hasHandler
-      vm._renderProxy = new Proxy(vm, handlers)
+      vm._renderProxy = new Proxy(vm, handlers) // 其实Vue2也是有用到 proxy的，  _renderProxy 指向 handlers，正常即是 hasHandler
     } else {
       vm._renderProxy = vm
     }

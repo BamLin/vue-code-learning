@@ -89,7 +89,7 @@ export default class Watcher {
 
     // parse expression for getter
     if (typeof expOrFn === 'function') {
-      this.getter = expOrFn // expOrFn 传入的expOrFn如果是个函数，。。
+      this.getter = expOrFn // todo expOrFn 传入的expOrFn如果是个函数，。。 ， 在下方要执行这个函数，lifecycle.js 中传入的 mountComponent
     } else {
       this.getter = parsePath(expOrFn)
       if (!this.getter) {
@@ -117,6 +117,7 @@ export default class Watcher {
     const vm = this.vm
     try {
       value = this.getter.call(vm, vm)
+      // todo lifecycle.js 中 mountComponent 核心就是先实例化一个渲染Watcher，在它的回调函数中会调用 updateComponent 方法
       // this.getter 会执行传入Watcher的 function，eg. lifecycle.js中的 updateComponent方法，从而更新
       // updateComponent = () => {
       //       vm._update(vm._render(), hydrating) // 更新触发 真实的渲染

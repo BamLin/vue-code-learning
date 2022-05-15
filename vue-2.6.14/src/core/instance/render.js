@@ -1,5 +1,11 @@
 /* @flow */
 
+/**
+ *
+ * 调用逻辑顺序： $mount -> mountComponent(lifecycle.js) -> updateComponent -> vm._render()
+ * render方法
+ * 
+ */
 import {
   warn,
   nextTick,
@@ -28,9 +34,12 @@ export function initRender (vm: Component) {
   // so that we get proper render context inside it.
   // args order: tag, data, children, normalizationType, alwaysNormalize
   // internal version is used by render functions compiled from templates
+
+  /* vm._c 是在 程序将templates编译成 render方法时调用 ，createElement(...,false/true) !! */
   vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false)
   // normalization is always applied for the public version, used in
   // user-written render functions.
+  /* 上方与下方的区别， vm.$createElement 是在 用户自己编写 render方法时，被调用 !! */
   vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true)
 
   // $attrs & $listeners are exposed for easier HOC creation.
@@ -66,6 +75,14 @@ export function renderMixin (Vue: Class<Component>) {
     return nextTick(fn, this)
   }
 
+  /**
+   *
+   * _render ，返回的是  VNode，
+   * 是实例的一个私有方法，它用来把实例渲染成一个虚拟 Node
+   *
+   * vm._render 最终是通过执行 createElement 方法并返回的是 vnode，它是一个虚拟 Node。
+   * Vue 2.0 相比 Vue 1.0 最大的升级就是利用了 Virtual DOM
+   */
   Vue.prototype._render = function (): VNode {
     const vm: Component = this
     const { render, _parentVnode } = vm.$options
@@ -88,7 +105,11 @@ export function renderMixin (Vue: Class<Component>) {
       // separately from one another. Nested component's render fns are called
       // when parent component is patched.
       currentRenderingInstance = vm
+
+      // vm._renderProxy
+      // vm.$createElement 在上方initRender中有定义，调用createElement方法生成
       vnode = render.call(vm._renderProxy, vm.$createElement)
+
     } catch (e) {
       handleError(e, vm, `render`)
       // return error render result,

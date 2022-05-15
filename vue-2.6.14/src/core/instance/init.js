@@ -43,15 +43,19 @@ export function initMixin (Vue: Class<Component>) {
     }
     /* istanbul ignore else */
     if (process.env.NODE_ENV !== 'production') {
+      // 开发阶段
       initProxy(vm)
     } else {
+      // 生产阶段，直接赋值
       vm._renderProxy = vm
     }
     // expose real self
     vm._self = vm
     initLifecycle(vm)
     initEvents(vm)
-    initRender(vm)
+
+    initRender(vm) // _render
+
     callHook(vm, 'beforeCreate')
     initInjections(vm) // resolve injections before data/props
     initState(vm)
