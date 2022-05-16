@@ -215,8 +215,11 @@ export function mountComponent (
        * 核心， vm._update， vm._render()
        * todo vm._render() 在 render.js 中
        * todo vm._render() 在 render.js 中
+       *
+       * 在此方法中调用 vm._render 方法先生成虚拟 Node，最终调用 vm._update 更新 DOM。
+       * 从这里需要了解 vm._render(), vm._update
        */
-      vm._update(vm._render(), hydrating)  // todo 更新触发 真实的渲染
+      vm._update(vm._render(), hydrating)  // todo 更新触发 真实的渲染！！！！！！
     }
   }
 

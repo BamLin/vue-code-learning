@@ -83,6 +83,8 @@ export function renderMixin (Vue: Class<Component>) {
    * _render ，返回的是  VNode，
    * 是实例的一个私有方法，它用来把实例渲染成一个虚拟 Node
    *
+   * 调用逻辑顺序： $mount -> mountComponent(lifecycle.js) -> updateComponent -> vm._render()
+   *
    * vm._render 最终是通过执行 createElement 方法并返回的是 vnode，它是一个虚拟 Node。
    * Vue 2.0 相比 Vue 1.0 最大的升级就是利用了 Virtual DOM
    */
@@ -109,9 +111,29 @@ export function renderMixin (Vue: Class<Component>) {
       // when parent component is patched.
       currentRenderingInstance = vm
 
-      // vm._renderProxy
-      // vm.$createElement 在上方initRender中有定义，调用createElement方法生成
+      /**
+       * 在 Vue 的官方文档中介绍了 render 函数的第一个参数是 createElement，那么结合之前的例子：
+       * <div id="app">
+       *   {{ message }}
+       * </div>
+       * 相当于我们编写如下 render 函数：
+       * render: function (createElement) {
+       *   return createElement('div', {
+       *      attrs: {
+       *         id: 'app'
+       *       },
+       *   }, this.message)
+       * }
+       */
+      // todo vm._renderProxy 细节？？？？
+      // todo vm._renderProxy 细节？？？？
+      //  vm.$createElement 在上方initRender中有定义，调用createElement方法生成 !!!!
+      // 实际上，vm.$createElement 方法定义是在执行 initRender 方法的时候，
+      // 可以看到除了 vm.$createElement 方法，还有一个 vm._c 方法，它是被模板编译成的 render 函数使用，
+      // 而 vm.$createElement 是用户手写 render 方法使用的，
+      // 这俩个方法支持的参数相同，并且内部都调用了 createElement 方法
       vnode = render.call(vm._renderProxy, vm.$createElement)
+
 
     } catch (e) {
       handleError(e, vm, `render`)
