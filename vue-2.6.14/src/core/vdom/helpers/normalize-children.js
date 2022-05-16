@@ -15,10 +15,15 @@ import { isFalse, isTrue, isDef, isUndef, isPrimitive } from 'shared/util'
 // normalization is needed - if any child is an Array, we flatten the whole
 // thing with Array.prototype.concat. It is guaranteed to be only 1-level deep
 // because functional components already normalize their own children.
+// >>> 1.当children包含组件时——因为一个函数组件
+// 可能会返回一个数组而不是单个根。 在这种情况下，只需一个简单的
+// 需要标准化 - 如果任何孩子是一个数组，我们将整个展平
+// Array.prototype.concat 的事情。 保证只有 1级深
+// 因为功能组件已经规范了他们自己的子组件。
 export function simpleNormalizeChildren (children: any) {
   for (let i = 0; i < children.length; i++) {
     if (Array.isArray(children[i])) {
-      return Array.prototype.concat.apply([], children)
+      return Array.prototype.concat.apply([], children) // 如果发现children数组 的内部还是 数组，继续扁平化，变成一维的
     }
   }
   return children
@@ -28,7 +33,12 @@ export function simpleNormalizeChildren (children: any) {
 // e.g. <template>, <slot>, v-for, or when the children is provided by user
 // with hand-written render functions / JSX. In such cases a full normalization
 // is needed to cater to all possible types of children values.
+// >>> 2.当孩子包含总是生成嵌套数组的构造时，
+// 例如 <template>、<slot>、v-for 或当子项由用户提供时
+// 带有手写的渲染函数 / JSX。 在这种情况下，完全标准化
+// 需要迎合所有可能类型的子组件值。
 export function normalizeChildren (children: any): ?Array<VNode> {
+  // isPrimitive 是否是简单数据类型
   return isPrimitive(children)
     ? [createTextVNode(children)]
     : Array.isArray(children)
@@ -40,17 +50,27 @@ function isTextNode (node): boolean {
   return isDef(node) && isDef(node.text) && isFalse(node.isComment)
 }
 
+/**
+ * 另一个场景是当编译 slot、v-for 的时候会产生嵌套数组的情况，会调用 normalizeArrayChildren 方法
+ *
+ * 递归，可以处理很多层的数据结构，不管嵌套多少层，最后都变成一维的vnode
+ *
+ * @param children
+ * @param nestedIndex
+ * @returns {[]}
+ */
 function normalizeArrayChildren (children: any, nestedIndex?: string): Array<VNode> {
-  const res = []
+  const res = [] // 最后的返回 -》 不管嵌套多少层，最后都变成一维的vnode
   let i, c, lastIndex, last
   for (i = 0; i < children.length; i++) {
     c = children[i]
     if (isUndef(c) || typeof c === 'boolean') continue
     lastIndex = res.length - 1
     last = res[lastIndex]
-    //  nested
+    //  nested 如果还包含有子组件
     if (Array.isArray(c)) {
       if (c.length > 0) {
+        // normalizeArrayChildren 递归
         c = normalizeArrayChildren(c, `${nestedIndex || ''}_${i}`)
         // merge adjacent text nodes
         if (isTextNode(c[0]) && isTextNode(last)) {

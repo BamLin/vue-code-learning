@@ -10,6 +10,9 @@
  *
  * Virtual DOM 除了它的数据结构的定义，映射到真实的 DOM 实际上要经历 VNode 的 create、diff、patch 等过程。
  * Vue.js 中，VNode 的 create 是通过之前提到的 createElement 方法创建的
+ *
+ * >>> 回到 mountComponent 函数的过程，我们已经知道 vm._render 是如何创建了一个 VNode，
+ * 接下来就是要把这个 VNode 渲染成一个真实的 DOM 并渲染出来，这个过程是通过 vm._update 完成的，接下来需要看这个过程vm._update
  */
 export default class VNode {
   tag: string | void;
@@ -85,7 +88,7 @@ export default class VNode {
 export const createEmptyVNode = (text: string = '') => {
   const node = new VNode()
   node.text = text
-  node.isComment = true
+  node.isComment = true // EmptyVNode，一开始是注释节点，注释vnode
   return node
 }
 

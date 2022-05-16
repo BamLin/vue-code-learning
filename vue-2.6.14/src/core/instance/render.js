@@ -36,7 +36,7 @@ export function initRender (vm: Component) {
   // internal version is used by render functions compiled from templates
 
   /**
-   * VNode 的 create 是通过之前提到的 createElement 方法创建的
+   * VNode 的 create 是通过 createElement 方法创建的
    */
   /* vm._c 是在 程序将templates编译成 render方法时调用 ，createElement(...,false/true) !! */
   vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false)
