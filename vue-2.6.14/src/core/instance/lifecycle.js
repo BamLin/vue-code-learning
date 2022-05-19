@@ -57,13 +57,14 @@ export function initLifecycle (vm: Component) {
 
 export function lifecycleMixin (Vue: Class<Component>) {
   /**
-   * _update 首次定义
+   * _update 的调用，首次渲染 + 依赖数据改变
    * @param vnode
    * @param hydrating
    * @private
    */
   Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     const vm: Component = this
+    // pre。。。 首次渲染，可以认为这些都是空的
     const prevEl = vm.$el
     const prevVnode = vm._vnode
     const restoreActiveInstance = setActiveInstance(vm)
@@ -72,10 +73,13 @@ export function lifecycleMixin (Vue: Class<Component>) {
     // based on the rendering backend used.
     if (!prevVnode) {
       // initial render
-      vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
+      // todo Vue.prototype.__patch__ = inBrowser ? patch : noop；
+      //  路径/platforms/web/runtime/index.js
+      // hydrating 为false
+      vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */) // 首次渲染，传入 真实DOM + 虚拟DOM，vm.$el, vnode
     } else {
       // updates
-      vm.$el = vm.__patch__(prevVnode, vnode)
+      vm.$el = vm.__patch__(prevVnode, vnode) // 再次刷新，传入 虚拟DOM + 虚拟DOM
     }
     restoreActiveInstance()
     // update __vue__ reference

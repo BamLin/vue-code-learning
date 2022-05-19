@@ -30,7 +30,7 @@ Vue.config.isUnknownElement = isUnknownElement
 extend(Vue.options.directives, platformDirectives)
 extend(Vue.options.components, platformComponents)
 
-// install platform patch function
+// install platform patch function ！！， 找patch
 Vue.prototype.__patch__ = inBrowser ? patch : noop
 
 /**
