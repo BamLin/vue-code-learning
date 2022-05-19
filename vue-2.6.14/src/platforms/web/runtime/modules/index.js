@@ -7,7 +7,7 @@ import transition from './transition'
 
 export default [
   attrs,
-  klass,
+  klass, // todo 为什么是 klass？
   events,
   domProps,
   style,

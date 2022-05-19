@@ -1,4 +1,5 @@
 /**
+ * todo 虚拟DOM设计基于 Snabbdom
  * Virtual DOM patching algorithm based on Snabbdom by
  * Simon Friis Vindum (@paldepind)
  * Licensed under the MIT License
@@ -30,6 +31,7 @@ import {
 
 export const emptyNode = new VNode('', {}, [])
 
+// Snabbdom 设计 分割出的hooks
 const hooks = ['create', 'activate', 'update', 'remove', 'destroy']
 
 function sameVnode (a, b) {
@@ -67,21 +69,37 @@ function createKeyToOldIdx (children, beginIdx, endIdx) {
   return map
 }
 
+/**
+ * export const patch: Function = createPatchFunction({ nodeOps, modules })
+ *
+ * @param backend
+ * @returns {(function(*, *, *, *): (undefined|*))|*}
+ */
 export function createPatchFunction (backend) {
   let i, j
   const cbs = {}
 
+  // nodeOps 主要是操作DOM的方法， modules 是DOM上本应有的内置模块，后面才是ref、directives指令模块
+  // modules： attrs,klass,events,domProps,style,transition
   const { modules, nodeOps } = backend
 
+  // 遍历所有模块modules，把所有模块的钩子hooks 存在 cbs
+  // const hooks = ['create', 'activate', 'update', 'remove', 'destroy']，//  Snabbdom 设计 分割出的hooks
   for (i = 0; i < hooks.length; ++i) {
-    cbs[hooks[i]] = []
+    cbs[hooks[i]] = [] // eg. cbs[create] = []
+    // modules： attrs,klass,events,domProps,style,transition
     for (j = 0; j < modules.length; ++j) {
-      if (isDef(modules[j][hooks[i]])) {
+      // 简化 eg. attrs.create
+      if (isDef(modules[j][hooks[i]])) { // todo patch 过程中，去到 某一个钩子，就会去执行相关模块的钩子函数！！拿到所有模块的钩子
+        // 简化 eg.  cbs[create].push(attrs.create) ，缓存某一种hooks的所有模块hooks方法 ，是这样吗？todo？？
         cbs[hooks[i]].push(modules[j][hooks[i]])
       }
     }
   }
 
+  /**
+   * 在 createPatchFunction 的内部，定义很多辅助函数
+   */
   function emptyNodeAt (elm) {
     return new VNode(nodeOps.tagName(elm).toLowerCase(), {}, [], undefined, elm)
   }
@@ -122,6 +140,16 @@ export function createPatchFunction (backend) {
 
   let creatingElmInVPre = 0
 
+  /**
+   * 重要！！ --- 把VNode挂载到真实DOM上
+   * @param vnode
+   * @param insertedVnodeQueue
+   * @param parentElm
+   * @param refElm
+   * @param nested
+   * @param ownerArray
+   * @param index
+   */
   function createElm (
     vnode,
     insertedVnodeQueue,
@@ -153,7 +181,7 @@ export function createPatchFunction (backend) {
         if (data && data.pre) {
           creatingElmInVPre++
         }
-        if (isUnknownElement(vnode, creatingElmInVPre)) {
+        if (isUnknownElement(vnode, creatingElmInVPre)) { // 未知 标签 <?>
           warn(
             'Unknown custom element: <' + tag + '> - did you ' +
             'register the component correctly? For recursive components, ' +
@@ -163,9 +191,10 @@ export function createPatchFunction (backend) {
         }
       }
 
+      // vnode.elm
       vnode.elm = vnode.ns
         ? nodeOps.createElementNS(vnode.ns, tag)
-        : nodeOps.createElement(tag, vnode)
+        : nodeOps.createElement(tag, vnode) // 就是创建了一个DOM
       setScope(vnode)
 
       /* istanbul ignore if */
@@ -188,10 +217,18 @@ export function createPatchFunction (backend) {
           insert(parentElm, vnode.elm, refElm)
         }
       } else {
+        /**
+         * createChildren 创建子节点，递归调用 createElm，
+         * >>>
+         * 结合执行完createChildren后，随即执行的insert，(insert 其实就是 原生DOM的操作 insertBefore、appendChild)
+         * 由此带来一个思考，因为 createChildren 是 递归createElm，所以会优先执行完 子节点的，并且执行insert,
+         * 整个 vnode 树节点的插入顺序是先子后父
+         */
         createChildren(vnode, children, insertedVnodeQueue)
         if (isDef(data)) {
           invokeCreateHooks(vnode, insertedVnodeQueue)
         }
+        // 最终去插入， parentElm 父挂载节点，vnode.elm 当前VNode的节点，refElm 参考节点
         insert(parentElm, vnode.elm, refElm)
       }
 
@@ -269,10 +306,12 @@ export function createPatchFunction (backend) {
     insert(parentElm, vnode.elm, refElm)
   }
 
+  // parentElm 父挂载节点，vnode.elm 当前VNode的节点，refElm 参考节点
   function insert (parent, elm, ref) {
     if (isDef(parent)) {
       if (isDef(ref)) {
         if (nodeOps.parentNode(ref) === parent) {
+          // insertBefore，appendChild 名字很熟悉，其实就是 原生DOM操作的封装
           nodeOps.insertBefore(parent, elm, ref)
         }
       } else {
@@ -697,6 +736,17 @@ export function createPatchFunction (backend) {
     }
   }
 
+  /**
+   * createPatchFunction 函数最后返回 patch函数 -- 函数柯里化的技巧，f(a,b,c) = f(a)(b)(c)
+   *
+   * todo createPatchFunction({ nodeOps, modules }) 传入的两个参数，都是平台相关的
+   *  -- Vue是跨端跨平台的，不同平台上操作DOM的API是不一样的，需要分离，而函数柯里化可以抹平JS逻辑差异，不需要每次都传入不同的参数，多写if else；
+   *  虽然patch的核心逻辑是一致的
+   *  ----- 要重点理解下 ！！！
+   */
+  // todo vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */) // 首次渲染，传入 真实DOM + 虚拟DOM，vm.$el, vnode
+  //  oldVnode 第一次是 真实DOM，
+  //  hydrating 为false
   return function patch (oldVnode, vnode, hydrating, removeOnly) {
     if (isUndef(vnode)) {
       if (isDef(oldVnode)) invokeDestroyHook(oldVnode)
@@ -711,11 +761,13 @@ export function createPatchFunction (backend) {
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue)
     } else {
-      const isRealElement = isDef(oldVnode.nodeType)
+
+      const isRealElement = isDef(oldVnode.nodeType) // 第一次渲染，为true
       if (!isRealElement && sameVnode(oldVnode, vnode)) {
         // patch existing root node
         patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly)
       } else {
+        // todo 第一次渲染，进来
         if (isRealElement) {
           // mounting to a real element
           // check if this is server-rendered content and if we can perform
@@ -740,14 +792,17 @@ export function createPatchFunction (backend) {
           }
           // either not server-rendered, or hydration failed.
           // create an empty node and replace it
-          oldVnode = emptyNodeAt(oldVnode)
+          oldVnode = emptyNodeAt(oldVnode) // todo 第一次渲染走到这里，将真实DOM转化为 VNode
         }
+        //   function emptyNodeAt (elm) {
+        //     return new VNode(nodeOps.tagName(elm).toLowerCase(), {}, [], undefined, elm)
+        //   }
 
         // replacing existing element
-        const oldElm = oldVnode.elm
-        const parentElm = nodeOps.parentNode(oldElm)
+        const oldElm = oldVnode.elm // 真实DOM？
+        const parentElm = nodeOps.parentNode(oldElm) // 指的是 body
 
-        // create new node
+        // create new node 重要！！！！ 把VNode挂载到真实DOM上
         createElm(
           vnode,
           insertedVnodeQueue,
@@ -788,7 +843,9 @@ export function createPatchFunction (backend) {
           }
         }
 
-        // destroy old node
+        // destroy old node -- 这一步很有意思，如果在这里debuger，会发现两个 app节点，其实就是创建一个新app节点，去替换旧app节点
+        // <body> <div id="app"></div> </body>
+        // 官网的例子是 id 为 #app div 的父元素，也就是 Body；实际上整个过程就是递归创建了一个完整的 DOM 树并插入到 Body 上。
         if (isDef(parentElm)) {
           removeVnodes([oldVnode], 0, 0)
         } else if (isDef(oldVnode.tag)) {
@@ -797,6 +854,7 @@ export function createPatchFunction (backend) {
       }
     }
 
+    // 一些钩子函数
     invokeInsertHook(vnode, insertedVnodeQueue, isInitialPatch)
     return vnode.elm
   }

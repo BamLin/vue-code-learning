@@ -73,9 +73,9 @@ export function lifecycleMixin (Vue: Class<Component>) {
     // based on the rendering backend used.
     if (!prevVnode) {
       // initial render
-      // todo Vue.prototype.__patch__ = inBrowser ? patch : noop；
-      //  路径/platforms/web/runtime/index.js
       // hydrating 为false
+      // __patch__的定义： Vue.prototype.__patch__ = inBrowser ? patch : noop
+      //  路径： /platforms/web/runtime/index.js
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */) // 首次渲染，传入 真实DOM + 虚拟DOM，vm.$el, vnode
     } else {
       // updates
