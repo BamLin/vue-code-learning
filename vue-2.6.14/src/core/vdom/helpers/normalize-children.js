@@ -33,7 +33,7 @@ export function simpleNormalizeChildren (children: any) {
 // e.g. <template>, <slot>, v-for, or when the children is provided by user
 // with hand-written render functions / JSX. In such cases a full normalization
 // is needed to cater to all possible types of children values.
-// >>> 2.当孩子包含总是生成嵌套数组的构造时，
+// >>> 2.当子组件包含总是生成嵌套数组的构造时，
 // 例如 <template>、<slot>、v-for 或当子项由用户提供时
 // 带有手写的渲染函数 / JSX。 在这种情况下，完全标准化
 // 需要迎合所有可能类型的子组件值。
