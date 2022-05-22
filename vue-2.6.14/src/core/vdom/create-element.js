@@ -143,6 +143,16 @@ export function _createElement (
     } else if ((!data || !data.pre) && isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
       // component
       // 传入的是component类型，通过 createComponent 方法创建一个组件 VNode。
+      /**
+       * 日常正常使用Vue时，都是组件化的形式去组织页面，所以，会走到这个逻辑里面
+       * eg. render函数，但传的是一个组件 App.vue
+       * var app = new Vue({
+       *   el: '#app',
+       *   // 这里的 h 是 createElement 方法
+       *   render: h => h(App)
+       * })
+       * @type {VNode|Array<VNode>|void}
+       */
       vnode = createComponent(Ctor, data, context, children, tag)
     } else {
       // unknown or unlisted namespaced elements
