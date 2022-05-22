@@ -32,7 +32,8 @@ import {
   renderRecyclableComponentTemplate
 } from 'weex/runtime/recycle-list/render-component-template'
 
-// inline hooks to be invoked on component VNodes during patch
+// inline hooks to be invoked on component VNodes during patch / 补丁期间要在组件 VNode 上调用的内联挂钩
+// 组件的 钩子函数 init、prepatch、insert、destroy
 const componentVNodeHooks = {
   init (vnode: VNodeWithData, hydrating: boolean): ?boolean {
     if (
@@ -98,10 +99,23 @@ const componentVNodeHooks = {
 
 const hooksToMerge = Object.keys(componentVNodeHooks)
 
+/**
+ * 重要
+ * createElement 在渲染一个组件的时候的 3 个关键逻辑：
+ * 1、构造子类构造函数，2、安装组件钩子函数 3、实例化 vnode。
+ * createComponent 后返回的是组件 vnode，它也一样走到 vm._update 方法，进而执行了 patch 函数，
+ *
+ * @param Ctor
+ * @param data
+ * @param context
+ * @param children
+ * @param tag
+ * @returns {VNode|Array<VNode>|void|*}
+ */
 export function createComponent (
   Ctor: Class<Component> | Function | Object | void,
   data: ?VNodeData,
-  context: Component,
+  context: Component, // 当前的vm实例
   children: ?Array<VNode>,
   tag?: string
 ): VNode | Array<VNode> | void {
@@ -109,11 +123,15 @@ export function createComponent (
     return
   }
 
-  const baseCtor = context.$options._base
+  // vm.$options._base 来源：
+  // 在 core/global-api/index.js中  Vue.options._base = Vue
+  // 在 init.js 中 vm.$options = mergeOptions(。。。
+  const baseCtor = context.$options._base // 其实就是访问的 vm.$options._base，也就是 Vue
 
-  // plain options object: turn it into a constructor
+  // plain options object: turn it into a constructor >>> 普通选项对象：将其转换为构造函数
   if (isObject(Ctor)) {
-    Ctor = baseCtor.extend(Ctor)
+    // 把对象 Ctor 转换成一个新的 构造器
+    Ctor = baseCtor.extend(Ctor) // 其实就是 Vue.extend =》/src/core/global-api/extend.js
   }
 
   // if at this stage it's not a constructor or an async component factory,
@@ -125,7 +143,7 @@ export function createComponent (
     return
   }
 
-  // async component
+  // async component 异步组件
   let asyncFactory
   if (isUndef(Ctor.cid)) {
     asyncFactory = Ctor
@@ -182,11 +200,13 @@ export function createComponent (
     }
   }
 
-  // install component management hooks onto the placeholder node
-  installComponentHooks(data)
+  // install component management hooks onto the placeholder node >>> 在占位符节点上 安装组件管理钩子
+  installComponentHooks(data) // VNode 的 patch 流程中对外暴露了各种时机的钩子函数，方便我们做一些额外的事情
 
   // return a placeholder vnode
   const name = Ctor.options.name || tag
+  // new VNode 中传入的 children为空，但是确在 componentOptions中传入了 children todo why？
+  // 。需要注意的是和普通元素节点的 vnode 不同，组件的 vnode 是没有 children 的，这点很关键，在之后的 patch 过程中我们会再提。 todo ！！
   const vnode = new VNode(
     `vue-component-${Ctor.cid}${name ? `-${name}` : ''}`,
     data, undefined, undefined, undefined, context,

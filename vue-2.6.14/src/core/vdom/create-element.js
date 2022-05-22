@@ -31,6 +31,9 @@ const ALWAYS_NORMALIZE = 2
  * Virtual DOM 除了它的数据结构的定义，映射到真实的 DOM 实际上要经历 VNode 的 create、diff、patch 等过程。
  * 在 Vue.js 中，VNode 的 create 是通过 createElement 方法创建的
  *
+ * createElement 在渲染一个组件的时候的 3 个关键逻辑：
+ * 1、构造子类构造函数，2、安装组件钩子函数 3、实例化 vnode。
+ *
  * @param context vm实例
  * @param tag eg. div
  * @param data
@@ -39,6 +42,7 @@ const ALWAYS_NORMALIZE = 2
  * @param alwaysNormalize
  * @returns {VNode|Array<VNode>}
  */
+
 // wrapper function for providing a more flexible interface
 // without getting yelled at by flow
 export function createElement (
