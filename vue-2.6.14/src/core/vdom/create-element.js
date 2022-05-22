@@ -125,7 +125,7 @@ export function _createElement (
   // todo VNode 的创建 ！！！！
   // todo VNode 的创建 ！！！！
   let vnode, ns
-  // todo tag可以是个 string，也可以是个组件， @param tag eg. div
+  // todo tag可以是个 string，也可以是个组件， @param tag eg. div, 如果是一个普通的 html 标签eg div，则会实例化一个普通 VNode 节点
   if (typeof tag === 'string') {
     let Ctor
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag)
@@ -135,13 +135,14 @@ export function _createElement (
         warn(`The .native modifier for v-on is only valid on components but it was used on <${tag}>.`,
           context)
       }
-      // 最后返回的 vnode
+      // tag是string，说明传入的是一个标签，会实例化成一个普通的vnode节点，最后返回的 vnode；
       vnode = new VNode(
         config.parsePlatformTagName(tag), data, children,
         undefined, undefined, context
       )
     } else if ((!data || !data.pre) && isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
       // component
+      // 传入的是component类型，通过 createComponent 方法创建一个组件 VNode。
       vnode = createComponent(Ctor, data, context, children, tag)
     } else {
       // unknown or unlisted namespaced elements
