@@ -113,9 +113,9 @@ export function _createElement (
     children.length = 0
   }
 
-  // todo 重要，normalizeChildren ！！！ ，规范化 children
-  // todo 重要，normalizeChildren ！！！ ，规范化 children
-  // todo 重要，normalizeChildren ！！！ ，规范化 children
+  // todo 重要，normalizeChildren ！！！ ，规范化 children 还不是很清楚 ？
+  // todo 重要，normalizeChildren ！！！ ，规范化 children 还不是很清楚 ？
+  // todo 重要，normalizeChildren ！！！ ，规范化 children 还不是很清楚 ？
   // Virtual DOM 实际上是一个树状结构，每一个 VNode 可能会有若干个子节点，这些子节点应该也是 VNode 的类型
   if (normalizationType === ALWAYS_NORMALIZE) {
     children = normalizeChildren(children)

@@ -76,6 +76,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
       // hydrating 为false
       // __patch__的定义： Vue.prototype.__patch__ = inBrowser ? patch : noop
       //  路径： /platforms/web/runtime/index.js
+      // todo patch ？？？
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */) // 首次渲染，传入 真实DOM + 虚拟DOM，vm.$el, vnode
     } else {
       // updates
@@ -224,7 +225,6 @@ export function mountComponent (
       /**
        * 核心， vm._update， vm._render()
        * todo vm._render() 在 render.js 中
-       * todo vm._render() 在 render.js 中
        *
        * 在此方法中调用 vm._render 方法先生成虚拟 Node，最终调用 vm._update 更新 DOM。
        * 从这里需要了解 vm._render(), vm._update
@@ -237,7 +237,7 @@ export function mountComponent (
    * Watcher 是一个监听类，核心
    *
    * Watcher 在这里起到两个作用，一个是初始化的时候会执行回调函数updateComponent，
-   * 另一个是当 vm 实例中的监测的数据发生变化的时候执行回调函数，这块儿我们会在之后的章节中介绍。
+   * 另一个是当 vm 实例中的监测的数据发生变化的时候执行回调函数
    */
   // we set this to vm._watcher inside the watcher's constructor
   // since the watcher's initial patch may call $forceUpdate (e.g. inside child

@@ -142,6 +142,9 @@ export function createPatchFunction (backend) {
 
   /**
    * 重要！！ --- 把VNode挂载到真实DOM上
+   *
+   * createElm中的createChildren不断递归调用createElm
+   *
    * @param vnode
    * @param insertedVnodeQueue
    * @param parentElm
@@ -243,6 +246,7 @@ export function createPatchFunction (backend) {
       insert(parentElm, vnode.elm, refElm)
     }
   }
+
 
   function createComponent (vnode, insertedVnodeQueue, parentElm, refElm) {
     let i = vnode.data
@@ -843,7 +847,8 @@ export function createPatchFunction (backend) {
           }
         }
 
-        // destroy old node -- 这一步很有意思，如果在这里debuger，会发现两个 app节点，其实就是创建一个新app节点，去替换旧app节点
+
+        // destroy old node -- 这一步很有意思，如果在这里 debugger，会发现两个 app节点，其实就是创建一个新app节点，去替换旧app节点
         // <body> <div id="app"></div> </body>
         // 官网的例子是 id 为 #app div 的父元素，也就是 Body；实际上整个过程就是递归创建了一个完整的 DOM 树并插入到 Body 上。
         if (isDef(parentElm)) {

@@ -206,7 +206,7 @@ export function createComponent (
   // return a placeholder vnode
   const name = Ctor.options.name || tag
   // new VNode 中传入的 children为空，但是确在 componentOptions中传入了 children todo why？
-  // 。需要注意的是和普通元素节点的 vnode 不同，组件的 vnode 是没有 children 的，这点很关键，在之后的 patch 过程中我们会再提。 todo ！！
+  // 。需要注意的是和普通元素节点的 vnode 不同，组件的 vnode 是没有 children 的， 组件化patch的过程是有区别的。 todo ！！
   const vnode = new VNode(
     `vue-component-${Ctor.cid}${name ? `-${name}` : ''}`,
     data, undefined, undefined, undefined, context,
