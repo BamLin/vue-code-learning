@@ -202,6 +202,7 @@ export function createComponent (
 
   // install component management hooks onto the placeholder node >>> 在占位符节点上 安装组件管理钩子
   installComponentHooks(data) // VNode 的 patch 流程中对外暴露了各种时机的钩子函数，方便我们做一些额外的事情
+  // todo
 
   // return a placeholder vnode
   const name = Ctor.options.name || tag

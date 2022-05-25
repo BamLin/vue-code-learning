@@ -172,6 +172,8 @@ export function createPatchFunction (backend) {
     }
 
     vnode.isRootInsert = !nested // for transition enter check
+    /* 组件化调用patch时，走到这里，会很大不一样
+     */
     if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
       return
     }
@@ -252,8 +254,11 @@ export function createPatchFunction (backend) {
     let i = vnode.data
     if (isDef(i)) {
       const isReactivated = isDef(vnode.componentInstance) && i.keepAlive
+      // todo hook
       if (isDef(i = i.hook) && isDef(i = i.init)) {
         i(vnode, false /* hydrating */)
+        // todo 如果有对应 hook，执行这个hook函数 ， 在 create-component.js中installComponentHooks中定义
+        // todo 执行到 componentVNodeHooks.init 中
       }
       // after calling the init hook, if the vnode is a child component
       // it should've created a child instance and mounted it. the child
