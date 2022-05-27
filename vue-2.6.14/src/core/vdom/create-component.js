@@ -45,10 +45,13 @@ const componentVNodeHooks = {
       const mountedNode: any = vnode // work around flow
       componentVNodeHooks.prepatch(mountedNode, mountedNode)
     } else {
+      // 非keep-alive的，先走到这里
+      // createComponentInstanceForVnode返回的是 vm实例
       const child = vnode.componentInstance = createComponentInstanceForVnode(
         vnode,
-        activeInstance
+        activeInstance // instance/lifecycle中
       )
+      // 手动调用 $mount 方法
       child.$mount(hydrating ? vnode.elm : undefined, hydrating)
     }
   },
@@ -226,6 +229,10 @@ export function createComponent (
   return vnode
 }
 
+// createComponentInstanceForVnode(
+//   vnode,
+//   activeInstance // instance/lifecycle中
+// )
 export function createComponentInstanceForVnode (
   // we know it's MountedComponentVNode but flow doesn't
   vnode: any,
@@ -243,6 +250,8 @@ export function createComponentInstanceForVnode (
     options.render = inlineTemplate.render
     options.staticRenderFns = inlineTemplate.staticRenderFns
   }
+  // Ctor 组件的构造器 ，当前文件createComponent 中有定义
+  // todo 这里实际执行的是 Sub函数（extend.js中），执行了 _init
   return new vnode.componentOptions.Ctor(options)
 }
 

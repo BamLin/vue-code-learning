@@ -29,11 +29,15 @@ export function setActiveInstance(vm: Component) {
   }
 }
 
+/**
+ * todo ？？ 建立 父子组件关系
+ * @param vm
+ */
 export function initLifecycle (vm: Component) {
   const options = vm.$options
 
-  // locate first non-abstract parent
-  let parent = options.parent
+  // locate first non-abstract parent >>> 定位第一个非抽象父节点
+  let parent = options.parent // vm.$options.parents
   if (parent && !options.abstract) {
     while (parent.$options.abstract && parent.$parent) {
       parent = parent.$parent
@@ -67,7 +71,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
     // pre。。。 首次渲染，可以认为这些都是空的
     const prevEl = vm.$el
     const prevVnode = vm._vnode
-    const restoreActiveInstance = setActiveInstance(vm)
+    const restoreActiveInstance = setActiveInstance(vm) // todo 每次 _update 的时候，把当前的vm实例赋值给 activeInstance
     vm._vnode = vnode
     // Vue.prototype.__patch__ is injected in entry points
     // based on the rendering backend used.

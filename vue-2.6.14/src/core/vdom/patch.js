@@ -808,7 +808,7 @@ export function createPatchFunction (backend) {
         //   }
 
         // replacing existing element
-        const oldElm = oldVnode.elm // 真实DOM？
+        const oldElm = oldVnode.elm // todo 真实DOM ？
         const parentElm = nodeOps.parentNode(oldElm) // 指的是 body
 
         // create new node 重要！！！！ 把VNode挂载到真实DOM上

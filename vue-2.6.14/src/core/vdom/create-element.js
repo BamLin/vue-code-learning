@@ -66,7 +66,7 @@ export function createElement (
   return _createElement(context, tag, data, children, normalizationType)
 }
 
-// _createElement 真正的创建vnode
+// _createElement 真正的创建vnode， 追溯到 initRender
 export function _createElement (
   context: Component,
   tag?: string | Class<Component> | Function | Object,

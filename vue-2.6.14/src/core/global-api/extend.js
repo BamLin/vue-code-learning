@@ -37,7 +37,7 @@ export function initExtend (Vue: GlobalAPI) {
       validateComponentName(name)
     }
 
-    // todo
+    // todo create-component.js中的createComponentInstanceForVnode 调用到，但是 调用链需要理清楚
     // 让 Sub 拥有跟 Vue一样的能力
     //  这里 _init
     const Sub = function VueComponent (options) {
