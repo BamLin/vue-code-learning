@@ -172,6 +172,7 @@ export function createPatchFunction (backend) {
     }
 
     vnode.isRootInsert = !nested // for transition enter check
+
     /* 组件化调用patch时，走到这里，会很大不一样
      */
     if (createComponent(vnode, insertedVnodeQueue, parentElm, refElm)) {
@@ -261,9 +262,14 @@ export function createPatchFunction (backend) {
         // todo 执行到 componentVNodeHooks.init 中
       }
       // after calling the init hook, if the vnode is a child component
-      // it should've created a child instance and mounted it. the child
-      // component also has set the placeholder vnode's elm.
+      // it should've created a child instance and mounted it.
+      // the child component also has set the placeholder vnode's elm.
       // in that case we can just return the element and be done.
+      // >>>
+      // 调用 init 钩子后，如果 vnode 是子组件,
+      // 它应该已经创建了一个子实例并安装了它。
+      // 子组件还设置了占位符 vnode 的 elm。
+      // 在这种情况下，我们可以只返回元素并完成。
       if (isDef(vnode.componentInstance)) {
         initComponent(vnode, insertedVnodeQueue)
         insert(parentElm, vnode.elm, refElm)

@@ -122,6 +122,7 @@ export function createComponent (
   children: ?Array<VNode>,
   tag?: string
 ): VNode | Array<VNode> | void {
+  
   if (isUndef(Ctor)) {
     return
   }
