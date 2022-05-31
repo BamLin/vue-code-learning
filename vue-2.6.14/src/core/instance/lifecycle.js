@@ -199,7 +199,7 @@ export function mountComponent (
       }
     }
   }
-  callHook(vm, 'beforeMount')
+  callHook(vm, 'beforeMount') // 组件挂载之前先执行 beforeMount， 那么mounted呢？
 
   /**
    * performance 浏览器性能埋点
@@ -260,7 +260,7 @@ export function mountComponent (
 
   // manually mounted instance, call mounted on self
   // mounted is called for render-created child components in its inserted hook
-  if (vm.$vnode == null) {
+  if (vm.$vnode == null) { // vm.$vnode是 父节点的意思，如果 vm.$vnode == null，那么vm是没有父vnode，说明就是 根节点，根vnode
     vm._isMounted = true // 函数最后判断为根节点的时候设置 vm._isMounted 为 true， 表示这个实例已经挂载了，同时执行 mounted 钩子函数
     callHook(vm, 'mounted')
   }
@@ -390,10 +390,11 @@ export function deactivateChildComponent (vm: Component, direct?: boolean) {
   }
 }
 
+// 传入的hook是字符串类型，eg beforeCreate
 export function callHook (vm: Component, hook: string) {
   // #7573 disable dep collection when invoking lifecycle hooks
   pushTarget()
-  const handlers = vm.$options[hook]
+  const handlers = vm.$options[hook] // handlers实际上是一个数组
   const info = `${hook} hook`
   if (handlers) {
     for (let i = 0, j = handlers.length; i < j; i++) {

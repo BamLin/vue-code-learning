@@ -57,11 +57,11 @@ export function initMixin (Vue: Class<Component>) {
 
     initRender(vm) //  _render ， createElement !!!!
 
-    callHook(vm, 'beforeCreate')
+    callHook(vm, 'beforeCreate') // todo vue router、vuex 混入
     initInjections(vm) // resolve injections before data/props
-    initState(vm)
+    initState(vm) // data、props等 的初始化是在 initState中执行，自然 上方的beforeCreate是拿不到data、props的数据的
     initProvide(vm) // resolve provide after data/props
-    callHook(vm, 'created')
+    callHook(vm, 'created') //
 
     /* istanbul ignore if */
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
