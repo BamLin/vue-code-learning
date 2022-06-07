@@ -15,7 +15,8 @@ src
 ├── sfc             # .vue 文件解析
 ├── shared          # 共享代码
 ```
-内置组件、全局 API 封装，Vue 实例化、观察者、虚拟 DOM、工具函数等等。
+
+core 目录包含了 Vue.js 的核心代码，包括内置组件、全局 API 封装，Vue 实例化、观察者、虚拟 DOM、工具函数等等。
 * core
   * components 内置组件
   * global-api 全局 API 封装
