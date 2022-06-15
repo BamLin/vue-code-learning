@@ -817,7 +817,8 @@ export function createPatchFunction (backend) {
         const oldElm = oldVnode.elm // todo 真实DOM ？
         const parentElm = nodeOps.parentNode(oldElm) // 指的是 body
 
-        // create new node 重要！！！！ 把VNode挂载到真实DOM上
+        // create new node 重要！！！！ 把VNode挂载到真实DOM上 ，
+        // 在这之中执行了 insert，插入了节点
         createElm(
           vnode,
           insertedVnodeQueue,
